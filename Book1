@@ -1,0 +1,26 @@
+SELECT ZIP, LATx, LONGy
+FROM (
+SELECT z.ZIP,
+       z.LATx, z.LONGy,
+       p.radius,
+       p.distance_unit
+                * DEGREES(ACOS(COS(RADIANS(p.latpoint))
+                * COS(RADIANS(z.LATx))
+                * COS(RADIANS(p.longpoint - z.LONGy))
+                + SIN(RADIANS(p.latpoint))
+                * SIN(RADIANS(z.LATx)))) AS distance
+FROM Table1 as z
+JOIN
+       SELECT 18.180555 AS latpoint,  -66.749961 AS longpoint,
+              50.0 AS radius,         69.0 AS distance_unit
+  )AS p ON 1=1
+WHERE z.LATx
+    BETWEEN p.latpoint - (p.radius/p.distance_unit)
+        AND p.latpoint + (p.radius/p.distance_unit)
+  AND z.LONGy
+    BETWEEN p.longpoint - (p.radius/(p.distance_unit*COS(RADIANS(p.latpoint))))
+        AND p.longpoint + (p.radius/(p.distance_unit*COS(RADIANS(p.latpoint))))
+) AS d
+WHERE distance <= radius
+ORDER BY distance
+LIMIT 15
